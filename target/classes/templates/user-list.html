@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users list</title>
+    <style>table th, table td {padding: 5px;}</style>
+</head>
+<body>
+
+<h1>Users list</h1>
+<a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+
+<form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+    <input hidden type="submit" value="Sign Out"/>
+</form>
+<p></p>
+
+<table border="1">
+    <tr th:each="user, state : ${users}">
+        <td>
+            <form th:action="@{update}" th:object="${user}" method="post">
+                <input type="hidden" name="id" th:value="${user.getId()}">
+                <input type="text" name="username" th:value="${user.getUsername()}">
+                <input type="text" name="email" th:value="${user.getEmail()}">
+                <input type="text" name="password" th:value="${user.getPassword()}">
+                <button type="submit">Update</button>
+            </form>
+        </td>
+        <td>
+            <form th:action="@{delete}" th:object="${user}" method="post">
+                <input type="hidden" name="id" th:value="${user.getId()}">
+                <input type="hidden" name="username" th:value="${user.getUsername()}">
+                <input type="hidden" name="email" th:value="${user.getEmail()}">
+                <input type="hidden" name="password" th:value="${user.getPassword()}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+
+</table>
+
+<p></p>
+<form th:action="@{add}" method="post">
+    <p>Add user:</p>
+    <p><label for="size_1">Name</label> <input type="text" name="username" id="size_1">
+        <label for="size_2">Email</label> <input type="email" name="email" id="size_2">
+        <label for="size_3">Password</label> <input type="password" name="password" id="size_3">
+        <label for="size_4">IsAdmin</label> <input type="checkbox" name="isAdmin" id="size_4"> <span class="slider round"></span>
+        <input type="submit" value="Add"></p>
+</form>
+
+</body>
+</html>
