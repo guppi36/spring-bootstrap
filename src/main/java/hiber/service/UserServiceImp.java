@@ -42,4 +42,14 @@ public class UserServiceImp implements UserService {
    public User getUserByName(String username) {
       return userRepository.findByUsername(username);
    }
+
+   @Override
+   public User getUserByEmail(String email) {
+      return userRepository.findByEmail(email);
+   }
+
+   @Override
+   public User getUserById(Integer id) {
+      return userRepository.findById(id.longValue()).get();
+   }
 }

@@ -5,6 +5,8 @@ import hiber.model.User;
 import hiber.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -24,39 +26,72 @@ public class AdminController {
         this.userService = userService;
     }
 
+    private User getUserByDetails(){
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String email;
+		if(principal instanceof UserDetails){
+			email = ((UserDetails)principal).getUsername();
+		} else {
+			email = principal.toString();
+		}
+    	return userService.getUserByEmail(email);
+	}
 
     @GetMapping(value = "/")
 	public String printStart(ModelMap model) {
 		List<User> userList = userService.listUsers();
 
+
+		User userData = getUserByDetails();
+
+		model.addAttribute("userData", userData);
 		model.addAttribute("users", userList);
 		return "user-list";
 	}
 
    	@PostMapping(value = "/add")
 	public String addUser2(@RequestParam String username,
+						   @RequestParam String lastName,
+						   @RequestParam Integer age,
 						   @RequestParam String email,
 						   @RequestParam String password,
-						   @RequestParam(defaultValue = "false") boolean isAdmin, ModelMap model) {
+						   @RequestParam String role, ModelMap model) {
 		User newUser = new User(username, email, password);
+		newUser.setLastName(lastName);
+		newUser.setAge(age);
+
 		Set<Role> roles = new HashSet<>();
 		roles.add(Role.getUserRole());
-		if(isAdmin) roles.add(Role.getAdminRole());
+		if(role.equals("ADMIN")) roles.add(Role.getAdminRole());
 
 		newUser.setRoles(roles);
-
+		System.out.println(newUser + " // " + role);
 		userService.add(newUser);
 
 		List<User> userList = userService.listUsers();
+		model.addAttribute("userData", getUserByDetails());
 		model.addAttribute("users", userList);
 		return "user-list";
 	}
 
 	@PostMapping(value = "/update")
-	public String updateUser(@ModelAttribute(value="user") User user, ModelMap model) {
+	public String updateUser(@ModelAttribute(value="user") User user,
+							 @RequestParam(defaultValue = "none") String role,ModelMap model) {
+		Set<Role> roles = new HashSet<>();
+		if(role.equals("none")) {
+			User oldUser = userService.getUserById(user.getId().intValue());
+			roles = oldUser.getRoles();
+		} else {
+			roles.add(Role.getUserRole());
+			if (role.equals("ADMIN")) roles.add(Role.getAdminRole());
+		}
+		user.setRoles(roles);
+		System.out.println(user);
 		userService.update(user);
+
 		List<User> userList = userService.listUsers();
 
+		model.addAttribute("userData", getUserByDetails());
 		model.addAttribute("users", userList);
 		return "user-list";
 	}
@@ -67,7 +102,15 @@ public class AdminController {
 		userService.delete(user);
 		List<User> userList = userService.listUsers();
 
+		model.addAttribute("userData", getUserByDetails());
 		model.addAttribute("users", userList);
 		return "user-list";
+	}
+
+	@GetMapping("/findOne")
+	@ResponseBody
+	public User findOne(Integer id){
+    	User user = userService.getUserById(id);
+    	return user;
 	}
 }

@@ -1,5 +1,6 @@
 package hiber.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,7 +18,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username")
+    @Column(name = "firstname")
     private String username;
 
     @Column(name = "email")
@@ -26,13 +27,22 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "lastname")
+    private String lastname;
+
+    @Column(name = "age")
+    private Integer age;
+
     @ManyToMany
     @JoinTable(name = "users_roles",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
 
-    public User() {}
+    public User() {
+
+    }
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -72,6 +82,36 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public String getFirstName() {
+        return username;
+    }
+
+    public void setFirstName(String username) {
+        this.username = username;
+    }
+
+    public String getLastName() {
+        return lastname;
+    }
+
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getAllRoles(){
+        StringBuilder sb = new StringBuilder();
+        roles.forEach(r -> sb.append(r.getRoleNoRole()).append(" "));
+        return sb.toString();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -81,11 +121,11 @@ public class User implements UserDetails {
         return password;
     }
 
-    public void setUsername(String username) { this.username = username; }
+    public void setUsername(String email) { this.email = email; }
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
@@ -119,6 +159,6 @@ public class User implements UserDetails {
             for ( Role r : roles) {
                 rolesString += r.getRole() + " ";
             }
-        return id + " " + username + " " + password + " " + email + " " + rolesString;
+        return id + " " + username + " " + lastname + " " + age + " " + password + " " + email + " " + rolesString;
     }
 }

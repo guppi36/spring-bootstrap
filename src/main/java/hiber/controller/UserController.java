@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,15 +27,17 @@ public class UserController {
     @GetMapping(value = "")
     public String printStart(ModelMap model) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username;
+        String email;
         if(principal instanceof UserDetails){
-            username = ((UserDetails)principal).getUsername();
+            email = ((UserDetails)principal).getUsername();
         } else {
-            username = principal.toString();
+            email = principal.toString();
         }
 
         List<User> userList = new ArrayList<>();
-        userList.add(userService.getUserByName(username));
+        User userData = userService.getUserByEmail(email);
+        userList.add(userData);
+        model.addAttribute("userData", userData);
         model.addAttribute("users", userList);
         return "user";
     }

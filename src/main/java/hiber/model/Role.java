@@ -1,5 +1,6 @@
 package hiber.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ public class Role implements GrantedAuthority {
     private String role;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     Set<User> users;
 
     public Role() { }
@@ -42,6 +44,10 @@ public class Role implements GrantedAuthority {
 
     public String getRole() {
         return role;
+    }
+
+    public String getRoleNoRole() {
+        return role.substring(5);
     }
 
     public void setRole(String role) {

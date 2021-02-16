@@ -55,9 +55,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // указываем URL логаута
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 // указываем URL при удачном логауте
-                .logoutSuccessUrl("/login");
+                .logoutSuccessUrl("/login")
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .usernameParameter("email")
+                .permitAll();
 
         http
+//                .formLogin()
+//                .loginPage("/login")
+//                .usernameParameter("email")
+//                .permitAll()
+//                .and()
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login").permitAll() // доступность всем
